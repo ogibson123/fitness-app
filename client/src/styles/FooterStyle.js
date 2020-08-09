@@ -3,14 +3,14 @@ import styled from "styled-components";
 const FooterStyle = styled.div`
     #outer-container {
         bottom: 0;
+        position: absolute;
         width: 100vw;
         display: flex;
         flex-direction: column;
         align-items: center;
-        border-top: 2px solid blue;
-        background-color: blue;
+        border-top: 2px solid #007ca1;
+        background-color: #009dcc;
         height: 80px;
-        overflow-x: none;
     }
 
     .link-row {
@@ -22,8 +22,8 @@ const FooterStyle = styled.div`
         margin-right: 25px;
     }
 
-    .item-container:hover {
-        font-size: 110%;
+    p:hover {
+        text-decoration: underline;
     }
 
     .icon {

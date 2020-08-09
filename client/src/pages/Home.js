@@ -9,7 +9,7 @@ const Home = () => {
 
     return (
         <div className="App">
-            <Navbar />
+            <Navbar page="home" />
             <h2>{new Date().toDateString()}</h2>
             <LogStyle>
                 <FoodLog />

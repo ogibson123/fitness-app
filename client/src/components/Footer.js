@@ -11,13 +11,13 @@ const Footer = () => {
                     <span className="item-container">
                         <a href="http://github.com/ogibson123" target="_blank">
                             <FaGithub className="icon" />
-                            <p>github.com/ogibson123</p>
+                            <p>ogibson123</p>
                         </a>
                     </span>
                     <span className="item-container">
-                        <a href="http://github.com/ogibson123" target="_blank">
+                        <a href="https://www.linkedin.com/in/oscar-gibson-b9b8011ab/" target="_blank">
                             <FaLinkedin className="icon" />
-                            <p>github.com/ogibson123</p>
+                            <p>Oscar Gibson</p>
                         </a>
                     </span>
                 </div>

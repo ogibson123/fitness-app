@@ -10,7 +10,7 @@ const ProfilePage = () => {
     return (
         <div>
             <ProfileStyle>
-                <Navbar />
+                <Navbar page="profile" />
                 <Profile username={user} />
             </ProfileStyle>
             <Footer />

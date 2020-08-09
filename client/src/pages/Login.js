@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar.js";
 import LoginForm from "../components/LoginForm.js";
 import Footer from "../components/Footer.js";
@@ -9,7 +8,6 @@ const Login = () => {
         <div>
             <Navbar />
             <LoginForm />
-            <Link to="/signup">Create an Account</Link>
             <Footer />
         </div>
     );

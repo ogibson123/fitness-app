@@ -2,6 +2,7 @@ import React from "react";
 import { Redirect } from "react-router-dom";
 import Alert from "react-bootstrap/Alert";
 import { Label } from "../styles/AuthStyle.js";
+import { Link } from "react-router-dom";
 
 class LoginForm extends React.Component {
     constructor() {
@@ -57,7 +58,10 @@ class LoginForm extends React.Component {
                         <Label htmlFor="password">Password</Label>
                         <input onChange={(e) => this.handleChange(e)} name="password" type="password" />
                     </div>
-                    <button disabled={!this.state.username || !this.state.password}>Login</button>
+                    <div style={{textAlign: "center"}}>
+                        <button style={{margin: "10px"}}disabled={!this.state.username || !this.state.password}>Login</button>
+                        <Link style={{margin: "10px"}} to="/signup">Create an Account</Link>
+                    </div>
                 </form>
                 <Alert style={{display: "inline-block"}} variant="danger" show={this.state.alertVisible}>Incorrect username or password.</Alert>
 

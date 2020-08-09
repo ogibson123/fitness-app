@@ -12,7 +12,7 @@ class History extends React.Component {
     render() {
         return (
             <div>
-                <Navbar />
+                <Navbar page="history" />
                 <div>History</div>
             </div>
         )
