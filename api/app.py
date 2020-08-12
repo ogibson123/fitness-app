@@ -6,6 +6,7 @@ import datetime
 from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
+import bcrypt
 
 app = Flask(__name__)
 load_dotenv()
@@ -36,11 +37,11 @@ def authorizeToken(f):
 @app.route("/login", methods=["POST"])
 def login():
     auth = request.get_json()
-    query = {"username": auth["username"], "password": auth["password"]}
+    query = {"username": auth["username"]}
     res = users.find_one(query)
     print(res)
 
-    if res:
+    if res and bcrypt.checkpw(auth["password"].encode("utf-8"), res["password"]):
         token = jwt.encode(
             {"user": auth["username"], "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=45)},
             app.config["SECRET_KEY"])
@@ -56,8 +57,11 @@ def signup():
     query = {"username": data["username"]}
     userNameExists = users.find_one(query)
     
+    #hash passwords to avoid storing in plaintext
     if not userNameExists:
-        users.insert_one({"username": data["username"], "password": data["password"], "firstName": data["firstName"]})
+        salt = bcrypt.gensalt()
+        hashed_password = bcrypt.hashpw(data["password"].encode("utf-8"), salt)
+        users.insert_one({"username": data["username"], "password": hashed_password, "firstName": data["firstName"]})
         token = jwt.encode(
             {"user": data["username"], "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=45)},
             app.config["SECRET_KEY"])
