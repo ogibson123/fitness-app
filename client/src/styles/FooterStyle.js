@@ -3,14 +3,17 @@ import styled from "styled-components";
 const FooterStyle = styled.div`
     #outer-container {
         bottom: 0;
-        position: absolute;
-        width: 100vw;
+        width: 100%;
         display: flex;
         flex-direction: column;
         align-items: center;
         border-top: 2px solid #007ca1;
         background-color: #009dcc;
         height: 80px;
+    }
+
+    .stick {
+        position: absolute;
     }
 
     .link-row {

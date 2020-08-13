@@ -7,8 +7,10 @@ const Signup = () => {
     return (
         <div>
             <Navbar />
-            <SignupForm />
-            <Footer />
+            <div style={{display: "flex", justifyContent: "center", alignItems: "center", height: "60vh"}}>
+                <SignupForm />
+            </div>
+            <Footer stick/>
         </div>
     );
 }

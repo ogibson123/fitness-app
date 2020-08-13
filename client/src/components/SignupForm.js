@@ -41,7 +41,8 @@ class SignupForm extends React.Component {
         if (res.status === 200){
             let json = await res.json();
             localStorage.setItem("token", json.token);
-            this.setState({ redirect: "/history" });
+            localStorage.setItem("user", this.state.username);
+            this.setState({ redirect: "/home" });
         }
         else {
             this.setState({ alertMessage: "Username is taken." });
@@ -73,7 +74,7 @@ class SignupForm extends React.Component {
                     </div>
                     <div>
                         <button style={{margin: "10px"}} disabled={!this.state.firstName || !this.state.username || !this.state.password1 || !this.state.password2}>Signup</button>
-                        <Link style={{margin: "5px"}}to="/signup">Already have an account? Log in</Link>
+                        <Link style={{margin: "5px"}}to="/login">Already have an account? Log in</Link>
                     </div>
                 </form>
                 <Alert style={{display: "inline-block"}} variant="danger" show={this.state.alertMessage}>{this.state.alertMessage}</Alert>

@@ -35,7 +35,8 @@ class LoginForm extends React.Component {
         if (res.status === 200){
             let json = await res.json();
             localStorage.setItem("token", json.token);
-            this.setState({ redirect: "/history" });
+            localStorage.setItem("user", this.state.username);
+            this.setState({ redirect: "/home" });
         }
         else {
             this.setState({ alertVisible: true });
@@ -44,7 +45,7 @@ class LoginForm extends React.Component {
 
     render() {
         if (this.state.redirect)
-            return <Redirect to={this.state.redirect} />
+            return <Redirect user={this.state.username} to={this.state.redirect} />
             
         return (
             <div style={{textAlign: "center"}}>

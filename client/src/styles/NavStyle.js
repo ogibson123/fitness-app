@@ -3,10 +3,14 @@ import styled from "styled-components";
 const NavStyle = styled.nav`
     #navbar {
         background-color: #009dcc;
-        width: 100vw;
-        display: flex;
+        width: 100%;
+        display: inline-flex;
         align-items: center;
         justify-content: center;
+    }
+
+    #outer {
+        display: flex;
     }
 
     .navitem {

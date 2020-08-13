@@ -3,14 +3,12 @@ import Navbar from "../components/Navbar.js";
 import FoodLog from "../components/FoodLog.js";
 import Footer from "../components/Footer.js";
 import LogStyle from "../styles/LogStyle.js";
-import { Redirect } from "react-router-dom";
 
 const Home = () => {
-
     return (
         <div className="App">
             <Navbar page="home" />
-            <h2>{new Date().toDateString()}</h2>
+            <h3>{new Date().toDateString()}</h3>
             <LogStyle>
                 <FoodLog />
             </LogStyle>

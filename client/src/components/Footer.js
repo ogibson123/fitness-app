@@ -3,10 +3,11 @@ import { FaGithub, FaLinkedin, FaReact, FaPython } from "react-icons/fa";
 import { DiMongodb } from "react-icons/di";
 import FooterStyle from "../styles/FooterStyle.js";
 
-const Footer = () => {
+const Footer = (props) => {
+
     return (
         <FooterStyle>
-            <div id="outer-container">
+            <div id="outer-container" className={props.stick ? "stick" : ""}>
                 <div className="link-row">
                     <span className="item-container">
                         <a href="http://github.com/ogibson123" target="_blank">
