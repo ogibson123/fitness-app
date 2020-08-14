@@ -16,6 +16,7 @@ client = MongoClient()
 db = client["fitness"]
 foodLog = db["foodLog"]
 users = db["users"]
+comments = db["comments"]
 
 def authorizeToken(f):
     @wraps(f)
@@ -102,6 +103,28 @@ def saveLog(currentUser):
     foodLog.replace_one(query, data, upsert=True)
     res = make_response(jsonify({"message": "Log saved"}), 201)
     return res
+
+#Fetch comments posted on a user's page
+@app.route("/comments/<username>", methods=["GET"])
+def getCommentsForUser(username):
+    query = {"username": username}
+    res = comments.find_one(query)
+    print(res["commentsReceived"])
+    if res:
+        return make_response(jsonify({"body": res["commentsReceived"]}), 200)
+    else:
+        return make_response(jsonify({"message": "No data found"}), 404)
+
+@app.route("/comments", methods=["POST"])
+@authorizeToken
+def postComment(currentUser):
+    data = request.get_json()
+    query = {"username": data["writtenFor"]}
+    comment = {"author": currentUser, "date": data["date"], "content": data["content"]}
+    insertCommand = {"$push": {"commentsReceived": comment}}
+    comments.update_one(query, insertCommand)
+    
+    return make_response(jsonify({"message": "Comment posted"}), 201)
 
 
 if __name__ == "__main__":
