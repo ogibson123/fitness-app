@@ -109,7 +109,6 @@ def saveLog(currentUser):
 def getCommentsForUser(username):
     query = {"username": username}
     res = comments.find_one(query)
-    print(res["commentsReceived"])
     if res:
         return make_response(jsonify({"body": res["commentsReceived"]}), 200)
     else:
@@ -126,6 +125,22 @@ def postComment(currentUser):
     
     return make_response(jsonify({"message": "Comment posted"}), 201)
 
+#update a users' profile info
+@app.route("/profile", methods=["PUT"])
+@authorizeToken
+def updateProfile(currentUser):
+    data = request.get_json()
+    query = {"username": currentUser}
+    updateCommand = {"$set": 
+        {"profileInfo.currWeight": data["currWeight"], 
+        "profileInfo.goalWeight": data["goalWeight"],
+        "profileInfo.height": data["height"],
+        "profileInfo.favFood": data["favFood"],
+        "profileInfo.bio": data["bio"]}
+    }
+
+    users.update_one(query, updateCommand)
+    return make_response(jsonify({"message": "Profile updated"}), 200)
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -6,6 +6,7 @@ import Login from "./pages/Login.js";
 import Signup from "./pages/Signup.js";
 import ProfilePage from "./pages/ProfilePage.js";
 import "./App.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 function App() {

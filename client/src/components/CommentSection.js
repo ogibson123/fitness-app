@@ -4,15 +4,19 @@ import Comment from "./Comment";
 const CommentSection = (props) => {
     const [commentBody, setCommentBody] = useState("");
     const [commentList, setCommentList] = useState([]);
+    const [commentsShouldLoad, setCommentsShouldLoad] = useState(true);
 
     useEffect(() => {
-        fetch(process.env.REACT_APP_API + "/comments/" + props.username, {
-            method: "GET",
-            headers: {
-                Authorization: localStorage.getItem("token")
-            }
-        }).then(res => res.json()).then(json => setCommentList(json.body));
-    }, []);
+        if (commentsShouldLoad) {
+            fetch(process.env.REACT_APP_API + "/comments/" + props.username, {
+                method: "GET",
+                headers: {
+                    Authorization: localStorage.getItem("token")
+                }
+            }).then(res => res.json()).then(json => setCommentList(json.body));
+            setCommentsShouldLoad(false);
+        }
+    }, [commentsShouldLoad]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -28,7 +32,7 @@ const CommentSection = (props) => {
             body: JSON.stringify(newComment)
         }).then(res => res.json()).then(data => console.log(data));
         setCommentBody("");
-        setCommentList([...commentList, newComment]);
+        setCommentsShouldLoad(true);
     }
 
     return (
@@ -38,8 +42,8 @@ const CommentSection = (props) => {
                 <button type="submit" disabled={!commentBody.length}>Submit</button>
             </form>
             {commentList.map((comment) =>
-                <Comment author={comment.author} date={comment.date} content={comment.content} />
-            )}
+                <Comment author={comment.author} date={comment.date} content={comment.content} />).reverse()
+            }
         </div>
     )
 }

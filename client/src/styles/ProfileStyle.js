@@ -32,7 +32,13 @@ const ProfileStyle = styled.div`
         padding: 20px;
     }
 
+    #popup {
+        background-color: blue;
+    }
 
+    #modal-head {
+        background-color: blue;
+    }
 
 `;
 
