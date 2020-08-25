@@ -7,6 +7,8 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 import os
 import bcrypt
+from cloudinary.uploader import upload
+from cloudinary.utils import cloudinary_url
 
 app = Flask(__name__)
 load_dotenv()
@@ -17,6 +19,7 @@ db = client["fitness"]
 foodLog = db["foodLog"]
 users = db["users"]
 comments = db["comments"]
+
 
 def authorizeToken(f):
     @wraps(f)
@@ -30,10 +33,11 @@ def authorizeToken(f):
             currentUser = data["user"]
         except:
             return jsonify({"message": "invalid token"}), 403
-        
+
         return f(currentUser, *args, **kwargs)
-    
+
     return decorated
+
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -44,27 +48,31 @@ def login():
 
     if res and bcrypt.checkpw(auth["password"].encode("utf-8"), res["password"]):
         token = jwt.encode(
-            {"user": auth["username"], "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=45)},
+            {"user": auth["username"], "exp": datetime.datetime.utcnow(
+            ) + datetime.timedelta(minutes=45)},
             app.config["SECRET_KEY"])
 
         return jsonify({"token": token.decode("UTF-8")})
     else:
         return make_response(jsonify({"message": "Incorrect username or password"}), 400)
 
+
 @app.route("/signup", methods=["POST"])
 def signup():
-    #check if the username exists already. If it does, user can't sign up
+    # check if the username exists already. If it does, user can't sign up
     data = request.get_json()
     query = {"username": data["username"]}
     userNameExists = users.find_one(query)
-    
-    #hash passwords to avoid storing in plaintext
+
+    # hash passwords to avoid storing in plaintext
     if not userNameExists:
         salt = bcrypt.gensalt()
         hashed_password = bcrypt.hashpw(data["password"].encode("utf-8"), salt)
-        users.insert_one({"username": data["username"], "password": hashed_password, "firstName": data["firstName"]})
+        users.insert_one(
+            {"username": data["username"], "password": hashed_password, "firstName": data["firstName"]})
         token = jwt.encode(
-            {"user": data["username"], "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=45)},
+            {"user": data["username"], "exp": datetime.datetime.utcnow(
+            ) + datetime.timedelta(minutes=45)},
             app.config["SECRET_KEY"])
 
         return jsonify({"token": token.decode("UTF-8")})
@@ -72,13 +80,15 @@ def signup():
         print("not created")
         return make_response(jsonify({"message": "A user with that username already exists"}), 400)
 
-@app.route("/user/<username>")
-@authorizeToken
-def getOneUser(currentUser):
-    user = users.find_one({"username": currentUser})
-    return jsonify({"user": user["username"]})
 
-#Gets a food log from a user on a certain date
+@app.route("/user/<username>")
+def getOneUser(username):
+    user = users.find_one({"username": username})
+    del user["_id"]
+    del user["password"]
+    return jsonify(user)
+
+# Gets a food log from a user on a certain date
 @app.route("/logs/<date>", methods=["GET"])
 @authorizeToken
 def getLog(currentUser, date):
@@ -91,7 +101,9 @@ def getLog(currentUser, date):
     else:
         return make_response(jsonify({"message": "No data found"}), 404)
 
-#Saves a food log from the user into the database
+# Saves a food log from the user into the database
+
+
 @app.route("/logs", methods=["POST"])
 @authorizeToken
 def saveLog(currentUser):
@@ -99,12 +111,14 @@ def saveLog(currentUser):
     query = {"username": currentUser, "date": data["date"]}
     data["username"] = currentUser
 
-    #If document exists, it will update it. Else it will create it.
+    # If document exists, it will update it. Else it will create it.
     foodLog.replace_one(query, data, upsert=True)
     res = make_response(jsonify({"message": "Log saved"}), 201)
     return res
 
-#Fetch comments posted on a user's page
+# Fetch comments posted on a user's page
+
+
 @app.route("/comments/<username>", methods=["GET"])
 def getCommentsForUser(username):
     query = {"username": username}
@@ -114,33 +128,44 @@ def getCommentsForUser(username):
     else:
         return make_response(jsonify({"message": "No data found"}), 404)
 
+
 @app.route("/comments", methods=["POST"])
 @authorizeToken
 def postComment(currentUser):
     data = request.get_json()
     query = {"username": data["writtenFor"]}
-    comment = {"author": currentUser, "date": data["date"], "content": data["content"]}
+    comment = {"author": currentUser,
+               "date": data["date"], "content": data["content"]}
     insertCommand = {"$push": {"commentsReceived": comment}}
     comments.update_one(query, insertCommand)
-    
+
     return make_response(jsonify({"message": "Comment posted"}), 201)
 
-#update a users' profile info
+# update the authorized user's profile info
+
+
 @app.route("/profile", methods=["PUT"])
 @authorizeToken
 def updateProfile(currentUser):
-    data = request.get_json()
+    response = upload(
+        request.files["picture"].read(),
+        folder="/avatars",
+        public_id=currentUser
+    )
+    avatarURL = response["url"]
     query = {"username": currentUser}
-    updateCommand = {"$set": 
-        {"profileInfo.currWeight": data["currWeight"], 
-        "profileInfo.goalWeight": data["goalWeight"],
-        "profileInfo.height": data["height"],
-        "profileInfo.favFood": data["favFood"],
-        "profileInfo.bio": data["bio"]}
-    }
+    updateCommand = {"$set":
+                     {"profileInfo.currWeight": request.form["currWeight"],
+                      "profileInfo.goalWeight": request.form["goalWeight"],
+                      "profileInfo.height": request.form["height"],
+                      "profileInfo.favFood": request.form["favFood"],
+                      "profileInfo.bio": request.form["bio"],
+                      "profileInfo.avatarURL": avatarURL}
+                     }
 
     users.update_one(query, updateCommand)
     return make_response(jsonify({"message": "Profile updated"}), 200)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
