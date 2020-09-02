@@ -20,7 +20,6 @@ const ProfileStyle = styled.div`
     #img {
         height: 70px;
         width: 70px;
-        background-color: black;
         text-align: center;
     }
 
@@ -33,10 +32,6 @@ const ProfileStyle = styled.div`
     }
 
     #popup {
-        background-color: blue;
-    }
-
-    #modal-head {
         background-color: blue;
     }
 

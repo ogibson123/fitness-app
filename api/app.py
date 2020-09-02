@@ -70,6 +70,7 @@ def signup():
         hashed_password = bcrypt.hashpw(data["password"].encode("utf-8"), salt)
         users.insert_one(
             {"username": data["username"], "password": hashed_password, "firstName": data["firstName"]})
+        comments.insert_one({"username": data["username"], "comments": []})
         token = jwt.encode(
             {"user": data["username"], "exp": datetime.datetime.utcnow(
             ) + datetime.timedelta(minutes=45)},
@@ -84,9 +85,7 @@ def signup():
 @app.route("/user/<username>")
 def getOneUser(username):
     user = users.find_one({"username": username})
-    del user["_id"]
-    del user["password"]
-    return jsonify(user)
+    return jsonify(user["profileInfo"])
 
 # Gets a food log from a user on a certain date
 @app.route("/logs/<date>", methods=["GET"])
@@ -147,12 +146,14 @@ def postComment(currentUser):
 @app.route("/profile", methods=["PUT"])
 @authorizeToken
 def updateProfile(currentUser):
-    response = upload(
-        request.files["picture"].read(),
-        folder="/avatars",
-        public_id=currentUser
-    )
-    avatarURL = response["url"]
+    avatarURL = ""
+    if "picture" in request.files:
+        response = upload(
+            request.files["picture"].read(),
+            folder="/avatars",
+            public_id=currentUser
+        )
+        avatarURL = response["url"]
     query = {"username": currentUser}
     updateCommand = {"$set":
                      {"profileInfo.currWeight": request.form["currWeight"],
@@ -162,6 +163,8 @@ def updateProfile(currentUser):
                       "profileInfo.bio": request.form["bio"],
                       "profileInfo.avatarURL": avatarURL}
                      }
+    if "picture" not in request.files:
+        del updateCommand["$set"]["profileInfo.avatarURL"]
 
     users.update_one(query, updateCommand)
     return make_response(jsonify({"message": "Profile updated"}), 200)

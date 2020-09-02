@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import DefaultAvatar from "../assets/DefaultAvatar.png";
 import styled from "styled-components";
 
 const heights = ["4'8", "4'9", "4'10'", "4'11",
@@ -26,6 +27,7 @@ const EditProfileStyle = styled.div`
             margin-right: 40px;
             display: flex;
             flex-direction: column;
+            justify-content: space-evenly;
         }
 
         h2 {
@@ -37,6 +39,11 @@ const EditProfileStyle = styled.div`
             height: 70px;
         }
 
+        .flex-edit {
+            display: flex;
+            flex-direction: column;
+        }
+
         #height-display {
             text-align: center;
         }
@@ -44,15 +51,18 @@ const EditProfileStyle = styled.div`
     `;
 
 
-const EditProfileForm = () => {
-    const [profileInfo, setProfileInfo] = useState({ bio: "", height: 14, currWeight: 0, goalWeight: 0, favFood: "" });
+const EditProfileForm = (props) => {
+    const [profileInfo, setProfileInfo] = useState({ bio: props.bio, height: heights.indexOf(props.height), currWeight: props.currWeight, goalWeight: props.goalWeight, favFood: props.favFood });
     const [profilePicture, setProfilePicture] = useState(null);
+    const [avatarURL, setAvatarURL] = useState(props.avatarURL);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        
         const data = new FormData();
-        data.append("picture", profilePicture);
+        if (profilePicture) 
+            data.append("picture", profilePicture);
+
         data.append("height", heights[profileInfo.height]);
         for (let key in profileInfo)
             data.append(key, profileInfo[key]);
@@ -67,26 +77,38 @@ const EditProfileForm = () => {
         console.log(res);
     }
 
+    const changeAvatar = (e) => {
+        setProfilePicture(e.target.files[0]);
+        setAvatarURL(URL.createObjectURL(e.target.files[0]));
+    }
+
+    const avatarPreview = avatarURL ? avatarURL : DefaultAvatar;
+
     return (
         <EditProfileStyle>
             <h2>Editing Profile</h2>
             <form id="fields">
                 <div id="pfp-bio">
-                    <p>Change Profile Picture</p>
-                    <img src={profilePicture && URL.createObjectURL(profilePicture)} style={{ border: "1px solid black" }}></img>
-                    <input onChange={e => setProfilePicture(e.target.files[0])} type="file" accept="image/*" />
-                    <textarea name="bio" onChange={e => setProfileInfo({ ...profileInfo, bio: e.target.value })} />
+                    <div className="flex-edit">
+                        <p>Change Profile Picture</p>
+                        <img src={avatarPreview} style={{ border: "1px solid black" }}></img>
+                        <input onChange={e => changeAvatar(e)} type="file" accept="image/*" />
+                    </div>
+                    <div className="flex-edit">
+                        <label htmlFor="bio">Bio</label>
+                        <textarea name="bio" value={profileInfo.bio} onChange={e => setProfileInfo({ ...profileInfo, bio: e.target.value })} />
+                    </div>
                 </div>
                 <div id="non-bio">
                     <label htmlFor="height">Height</label>
                     <input value={profileInfo.height} type="range" name="height" min="0" max="25" onChange={e => setProfileInfo({ ...profileInfo, height: e.target.value })} />
                     <p id="height-display">{heights[profileInfo.height] + '"'}</p>
                     <label htmlFor="current-weight">Current Weight (lbs)</label>
-                    <input type="number" name="current-weight" onChange={e => setProfileInfo({ ...profileInfo, currWeight: e.target.value })} />
+                    <input value={profileInfo.currWeight} type="number" name="current-weight" onChange={e => setProfileInfo({ ...profileInfo, currWeight: e.target.value })} />
                     <label htmlFor="goal-weight">Goal Weight (lbs)</label>
-                    <input type="number" name="goal-weight" onChange={e => setProfileInfo({ ...profileInfo, goalWeight: e.target.value })} />
+                    <input value={profileInfo.goalWeight} type="number" name="goal-weight" onChange={e => setProfileInfo({ ...profileInfo, goalWeight: e.target.value })} />
                     <label htmlFor="favorite-food">Favorite Food</label>
-                    <input name="favorite-food" onChange={e => setProfileInfo({ ...profileInfo, favFood: e.target.value })} />
+                    <input value={profileInfo.favFood} name="favorite-food" onChange={e => setProfileInfo({ ...profileInfo, favFood: e.target.value })} />
                     <button onClick={e => handleSubmit(e)}>Save</button>
                 </div>
             </form>
